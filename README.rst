@@ -4,24 +4,63 @@ openedx-edit-links
 |pypi-badge| |ci-badge| |codecov-badge| |doc-badge| |pyversions-badge|
 |license-badge|
 
-The ``README.rst`` file should start with a brief description of the repository,
-which sets it in the context of other repositories under the ``edx``
-organization. It should make clear where this fits in to the overall edX
-codebase.
+Edit Links is an Open edX plugin application that provides a way to embed links to the course content stored in Git repositories as HTML files in the `Open Learning XML <https://edx.readthedocs.io/projects/edx-open-learning-xml/en/latest/front_matter/read_me.html>`_ format.
 
-Add Edit links to course content that allows students to contribute changes to FOSS courses
+Overview
+--------
 
-Overview (please modify)
-------------------------
-
-The ``README.rst`` file should then provide an overview of the code in this
-repository, including the main components and useful entry points for starting
-to understand the code in more detail.
+The plugin implements an `openedx-filters <https://github.com/openedx/openedx-filters/>`_ pipeline that hooks into the `VerticalBlockChildRenderStarted` event on the `VerticalBlock` XBlock on platform.
+The pipeline modifies the HTML content of `HTMLBlock` blocks and appends necessary html to add an "Edit on Git" link on top of each child block of the `VerticalBlock`.
 
 Documentation
 -------------
 
-(TODO: `Set up documentation <https://openedx.atlassian.net/wiki/spaces/DOC/pages/21627535/Publish+Documentation+on+Read+the+Docs>`_)
+Pre-requisites
+~~~~~~~~~~~~~~
+In order for this plugin to be used effectively the course content should be stored in a public repostiory in the `Open Learning XML <https://edx.readthedocs.io/projects/edx-open-learning-xml/en/latest/front_matter/read_me.html>`_ format. This allows the plugin to link each section of the course content to it's corresponding HTML file by automatically appending the filenames to the base URL of the repository.
+
+Installation
+~~~~~~~~~~~~
+
+* Install the plugin by adding `git+https://github.com/open-craft/openedx-edit-links.git` to your `EDXAPP_EXTRA_REQUIREMENTS` of your deployment.
+* Make sure you have the latest version of `openedx-filters` installed as well.
+
+
+Configuration
+~~~~~~~~~~~~~
+
+The plugin can be configured by adding custom settings to your deployment's `lms.yml`.
+
+#. Configure the plugin variables by setting the the following 2 values
+    * `EDIT_LINKS_PLUGIN_GIT_REPOS` - a map of course ids and the correspondint Git urls. This urls used here would be considered as the base of the `course` folder of the course content. For eg.,
+
+    .. code-block::
+
+        EDIT_LINKS_PLUGIN_GIT_REPOS = {
+            "course-v1:my+awesome+course": "https://gitlab.com/awesome-course/-/tree/master/course/",
+            "course-v1:foss+course+2022": "https://gitlab.com/foss-course/-/tree/master/2022/course/",
+        }
+
+    * `EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL` - an OPTIONAL configuration which lets you specify the word to use in the links "Edit on <label>". Defaults to `Git`.
+
+    .. code-block::
+
+        EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL = "Gitlab"
+
+#. Configure `openedx-filters` to run the plugin's pipeline
+
+    .. code-block::
+
+        OPEN_EDX_FILTERS_CONFIG = {
+            "org.openedx.learning.vertical_block_child.render.started.v1": {
+                "fail_silently": False,
+                "pipeline": [
+                    "edit_links.pipeline.AddEditLink"
+                ]
+            }
+        }
+
+**Note:** The base URL in the configuration should point the OLX course directory in your Git repo. The plugin adds "/html/<filename.html>" to take the user to the relevant file.
 
 Development Workflow
 --------------------
@@ -31,7 +70,7 @@ One Time Setup
 .. code-block::
 
   # Clone the repository
-  git clone git@github.com:edx/openedx-edit-links.git
+  git clone git@github.com:open-craft/openedx-edit-links.git
   cd openedx-edit-links
 
   # Set up a virtualenv using virtualenvwrapper with the same name as the repo and activate it
@@ -72,6 +111,20 @@ Every time you develop something in this repo
   git push
 
   # Open a PR and ask for review.
+
+Developing with the Devstack
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Clone the repository to your `/edx/src/` folder
+#. Install the plugin inside your lms container
+
+    .. code-block::
+
+        make lms-shell
+        pip install -e /edx/src/openedx-edit-links
+
+#. Add the necessary configuration (as mentioned in the "Configuration" section above) to your `edx-platform/lms/envs/private.py`
+#. Restart the lms container to ensure everything is loaded `make lms-restart`
 
 License
 -------
