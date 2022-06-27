@@ -24,7 +24,7 @@ class AddEditLink(PipelineStep):
                     "edit_links.pipeline.AddEditLink"
                 ]
             }
-        }
+
     """
     def get_repo_host(self, link):
         """
@@ -33,7 +33,7 @@ class AddEditLink(PipelineStep):
 
         Arguments:
             link (str): URL of the repository
-        
+
         Returns:
             name of the public repository hosting service or the domain name as string
         """
@@ -49,7 +49,7 @@ class AddEditLink(PipelineStep):
         block_id = next((child.block_id for child in block.children), "")
         if block_id:
             course_id = context["course"].id
-            config = EditLinkedCourse.objects.get(course_id=course_id)
+            config = EditLinkedCourse.objects.filter(course_id=course_id).first()
             if config:
                 repo_host = self.get_repo_host(config.repository_url)
                 edit_link = f"""<div class="edit-link" style="position:absolute;top:0;right:1rem;">
