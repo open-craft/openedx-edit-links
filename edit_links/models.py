@@ -11,6 +11,7 @@ class EditLinkedCourse(TimeStampedModel):
 
     .. no_pii:
     """
+
     course_id = models.CharField(max_length=255)
     repository_url = models.URLField(max_length=255)
     edit_tool_base_url = models.URLField(max_length=255)

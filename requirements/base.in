@@ -3,4 +3,4 @@
 
 Django             # Web application framework
 django-model-utils        # Provides TimeStampedModel abstract base class
-openedx-filters
+git+https://github.com/open-craft/openedx-filters.git@tecoholic/BB-6206-edit-links-poc

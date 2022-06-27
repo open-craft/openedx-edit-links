@@ -1,7 +1,7 @@
 """
 Module contains the openedx_filters pipeline steps offered by the extension.
 """
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 from openedx_filters import PipelineStep
 
@@ -10,8 +10,7 @@ from edit_links.models import EditLinkedCourse
 
 class AddEditLink(PipelineStep):
     """
-    Adds an "Edit" link pointing the Github/Gitlab editing interface
-    to the XBlock's HTML output.
+    Adds an "Edit" link pointing the Github/Gitlab editing interface to the XBlock's HTML output.
 
     Example Usage:
 
@@ -26,9 +25,11 @@ class AddEditLink(PipelineStep):
             }
 
     """
+
     def get_repo_host(self, link):
         """
-        Parses the provided link and returns the public repositor hosting service name.
+        Parse the provided link and return repository hosting service name.
+
         Eg., Github, Gitlab
 
         Arguments:
@@ -46,14 +47,18 @@ class AddEditLink(PipelineStep):
         return o.hostname
 
     def run_filter(self, block, context, template_name):  # pylint: disable=arguments-differ
+        """
+        Execute the filter logic.
+        """
         block_id = next((child.block_id for child in block.children), "")
         if block_id:
             course_id = context["course"].id
             config = EditLinkedCourse.objects.filter(course_id=course_id).first()
             if config:
                 repo_host = self.get_repo_host(config.repository_url)
+
                 edit_link = f"""<div class="edit-link" style="position:absolute;top:0;right:1rem;">
-                <a href="{config.edit_tool_base_url}/{block_id}.html" target="_blank">
+                <a href="{urljoin(config.edit_tool_base_url, block_id + ".html")}" target="_blank">
                     <i class="fa fa-pencil"></i>
                     Edit on {repo_host}
                 </a>
