@@ -3,9 +3,10 @@ Module contains the openedx_filters pipeline steps offered by the extension.
 """
 from urllib.parse import urljoin, urlparse
 
-from openedx_filters import PipelineStep
+from django.conf import settings
+from django.utils.translation import gettext as _
 
-from edit_links.models import EditLinkedCourse
+from openedx_filters import PipelineStep
 
 
 class AddEditLink(PipelineStep):
@@ -17,7 +18,7 @@ class AddEditLink(PipelineStep):
     Add the following configurations to you configuration file
 
         "OPEN_EDX_FILTERS_CONFIG": {
-            "org.openedx.learning.xblock.render.started.v1": {
+            "org.openedx.learning.verticalblockchild.render.started.v1": {
                 "fail_silently": false,
                 "pipeline": [
                     "edit_links.pipeline.AddEditLink"
@@ -26,43 +27,34 @@ class AddEditLink(PipelineStep):
 
     """
 
-    def get_repo_host(self, link):
+    def run_filter(self, block, context):  # pylint: disable=arguments-differ
         """
-        Parse the provided link and return repository hosting service name.
-
-        Eg., Github, Gitlab
-
-        Arguments:
-            link (str): URL of the repository
-
-        Returns:
-            name of the public repository hosting service or the domain name as string
+        Executes the filter which checks if the block is a html block and then wraps the content
+        in a div containing the Edit link.
         """
-        o = urlparse(link)
-        if "github" in o.hostname:
-            return "Github"
-        if "gitlab" in o.hostname:
-            return "Gitlab"
-        # let's just return the hostname in case if it not Gitlab or Github
-        return o.hostname
+        course_id = str(block.course_id)
+        git_url = settings.EDIT_LINKS_PLUGIN_GIT_REPOS.get(course_id, None)
 
-    def run_filter(self, block, context, template_name):  # pylint: disable=arguments-differ
-        """
-        Execute the filter logic.
-        """
-        block_id = next((child.block_id for child in block.children), "")
-        if block_id:
-            course_id = context["course"].id
-            config = EditLinkedCourse.objects.filter(course_id=course_id).first()
-            if config:
-                repo_host = self.get_repo_host(config.repository_url)
+        if type(block).__name__ == "HtmlBlockWithMixins" and git_url and not context.get("is_mobile_app", False):
+            label = _("Edit on %(site)s") % {"site": settings.EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL}
+            link = urljoin(git_url, f"html/{block.url_name}.html")
 
-                edit_link = f"""<div class="edit-link" style="position:absolute;top:0;right:1rem;">
-                <a href="{urljoin(config.edit_tool_base_url, block_id + ".html")}" target="_blank">
-                    <i class="fa fa-pencil"></i>
-                    Edit on {repo_host}
-                </a>
-                </div>
-                """
-                context["fragment"].add_content(edit_link)
-        return {"context": context, "template_name": template_name}
+            wrapped = f"""
+<div class="edit-link-wrapper">
+    <div class="edit-link">
+        <p style="text-align: right;"><a href="{link}" target="_blank"><i class="fa fa-pencil"></i> {label}</a></p>
+    </div>
+    <div class="edit-link-original-content">
+    {block.data}
+    </div>
+</div>
+"""
+            block.data = wrapped
+            # Let's not mark this change as dirty as that would save the edit link permanently
+            # This needed because the XBlock render() function has the sideeffect of saving all
+            # the dirty fields.
+            #
+            # Ref: https://github.com/openedx/XBlock/blob/d6932fa6203ecf5938b18a880f7f546cb37f5d63/xblock/runtime.py#L849-L850
+            block._clear_dirty_fields()  # pylint: disable=protected-access
+
+        return {"block": block, "context": context}

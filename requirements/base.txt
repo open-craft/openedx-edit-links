@@ -4,13 +4,9 @@
 #
 #    make upgrade
 #
---index-url http://edx.devstack.devpi:3141/root/pypi/+simple/
---extra-index-url https://pypi.python.org/simple
---trusted-host edx.devstack.devpi
-
 asgiref==3.5.2
     # via django
-django==3.2.13
+django==3.2.14
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
@@ -18,7 +14,7 @@ django==3.2.13
     #   openedx-filters
 django-model-utils==4.2.0
     # via -r requirements/base.in
-openedx-filters==0.7.0
+openedx-filters @ git+https://github.com/open-craft/openedx-filters.git@tecoholic/add-vertical-block-child-render-started-filter
     # via -r requirements/base.in
 pytz==2022.1
     # via django

@@ -11,3 +11,12 @@ class EditLinksConfig(AppConfig):
     """
 
     name = 'edit_links'
+
+    plugin_app = {
+        'settings_config': {
+            'lms.djangoapp': {
+                'production': { 'relative_path': 'settings.production' },
+                'common': { 'relative_path': 'settings.common' },
+            }
+        }
+    }

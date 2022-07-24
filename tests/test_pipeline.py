@@ -1,24 +1,38 @@
 """
 Tests for pipeline.py
 """
-from unittest.mock import Mock
+from unittest.mock import MagicMock
 
 from django.test import TestCase, override_settings
-from openedx_filters.learning.filters import XBlockRenderStarted  # pylint: disable=no-name-in-module
+from openedx_filters.learning.filters import VerticalBlockChildRenderStarted
 
-from edit_links.models import EditLinkedCourse
-from edit_links.pipeline import AddEditLink
+
+class HtmlBlockWithMixins:
+    """
+    Mock of the mixed class of xmodule.html_module.HtmlBlock to test the filter pipeline.
+
+    Arguments:
+        course_id (str): id of the course
+        url_name (str): the file name to which the HTML link will be created
+        data (str): the HTML content of the block
+    """
+    def __init__(self, course_id, url_name, data):
+        self.course_id = course_id
+        self.url_name = url_name
+        self.data = data
 
 
 @override_settings(
     OPEN_EDX_FILTERS_CONFIG={
-        "org.openedx.learning.xblock.render.started.v1": {
+        "org.openedx.learning.verticalblockchild.render.started.v1": {
             "fail_silently": False,
             "pipeline": [
                 "edit_links.pipeline.AddEditLink"
             ]
         }
-    }
+    },
+    EDIT_LINKS_PLUGIN_GIT_REPOS={},
+    EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL="Git",
 )
 class TestAddEditLinkPipeline(TestCase):
     """
@@ -28,57 +42,39 @@ class TestAddEditLinkPipeline(TestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.course_id = "test-course-id"
-        self.course = Mock()
-        self.course.id = self.course_id
-
-        class MockBlock:
-            def __init__(self):
-                self.block_id = "my-block-id"
-
-        self.block = Mock()
-        self.block.children = [MockBlock()]
-
-        self.fragment = Mock()
-        self.context = {
-            "fragment": self.fragment,
-            "course": self.course,
-        }
+        self.original_content = "<p>Test content</p>"
+        self.block = HtmlBlockWithMixins(
+            "course-v1:demo+course+2022", "chapter-01", self.original_content
+        )
 
     def test_pipeline_does_nothin_when_not_configured(self):
         """
         Check that the input fragment is unchanged when there is no
         configuration for a course.
         """
-        _ = XBlockRenderStarted.run_filter(
-            block=self.block, context=self.context, template_name="template.html"
+        print(type(self.block).__name__)
+        block, context = VerticalBlockChildRenderStarted.run_filter(
+            block=self.block, context={}
         )
-        self.fragment.add_content.assert_not_called()
+        self.assertEqual(block.data, self.original_content)
+        self.assertEqual(context, {})
 
+    @override_settings(
+        EDIT_LINKS_PLUGIN_GIT_REPOS={
+            "course-v1:demo+course+2022": "https://github.com/user/repo/folder/"
+        },
+        EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL="Github"
+    )
     def test_pipeline_adds_edit_link_when_configured(self):
         """
-        Check that an Edit link is appended to the fragment when a course is
-        configured with EditLinkedCourse.
+        Check that the edit link is added to the block data when the course is
+        configured with git repo url
         """
-        config = EditLinkedCourse(
-            course_id=self.course_id,
-            repository_url="https://gitlab.com/my/repo",
-            edit_tool_base_url="https://edit.tool/-/"
+        block, context = VerticalBlockChildRenderStarted.run_filter(
+            block=self.block, context={}
         )
-        config.save()
-        _ = XBlockRenderStarted.run_filter(
-            block=self.block, context=self.context, template_name="template.html"
-        )
-        self.fragment.add_content.assert_called_once()
-        link = "https://edit.tool/-/my-block-id.html"
-        self.assertIn(link, self.fragment.add_content.call_args[0][0])
 
-    def test_get_repo_host_identifies_correct_services(self):
-        """
-        Check that the get_repo_host utility function identifies known services and
-        returns url hostname for unknown ones
-        """
-        step = AddEditLink("filter-type", [])
-        self.assertEqual(step.get_repo_host("https://gitlab.com/hello"), "Gitlab")
-        self.assertEqual(step.get_repo_host("https://github.com/hello"), "Github")
-        self.assertEqual(step.get_repo_host("https://my.custom-repo-host.com/hello"), "my.custom-repo-host.com")
+        self.assertIn(self.original_content, block.data)
+        self.assertIn("https://github.com/user/repo/folder/html/chapter-01.html", block.data)
+        self.assertIn("Edit on Github", block.data)
+        self.assertEqual(context, {})
