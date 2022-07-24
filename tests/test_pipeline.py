@@ -1,8 +1,6 @@
 """
 Tests for pipeline.py
 """
-from unittest.mock import MagicMock
-
 from django.test import TestCase, override_settings
 from openedx_filters.learning.filters import VerticalBlockChildRenderStarted
 
