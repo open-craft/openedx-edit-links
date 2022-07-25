@@ -42,7 +42,7 @@ class AddEditLink(PipelineStep):
             wrapped = f"""
 <div class="edit-link-wrapper">
     <div class="edit-link">
-        <p style="text-align: right;"><a href="{link}" target="_blank"><i class="fa fa-pencil"></i> {label}</a></p>
+        <p style="text-align: right;"><a href="{link}" target="_blank"><i class="fa fa-pencil mr-1"></i> {label}</a></p>
     </div>
     <div class="edit-link-original-content">
     {block.data}
