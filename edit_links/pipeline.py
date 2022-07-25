@@ -16,6 +16,8 @@ class AddEditLink(PipelineStep):
 
     Add the following configurations to you configuration file
 
+    .. code-block::
+
         "OPEN_EDX_FILTERS_CONFIG": {
             "org.openedx.learning.verticalblockchild.render.started.v1": {
                 "fail_silently": false,

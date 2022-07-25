@@ -17,7 +17,7 @@ Documentation
 
 Pre-requisites
 ~~~~~~~~~~~~~~
-In order for this plugin to be used effectively the course content should be stored in a public repostiory in the `Open Learning XML <https://edx.readthedocs.io/projects/edx-open-learning-xml/en/latest/front_matter/read_me.html>`_ format. This allows the plugin to link each section of the course content to it's corresponding HTML file by automatically appending the filenames to the base URL of the repository. 
+In order for this plugin to be used effectively the course content should be stored in a public repostiory in the `Open Learning XML <https://edx.readthedocs.io/projects/edx-open-learning-xml/en/latest/front_matter/read_me.html>`_ format. This allows the plugin to link each section of the course content to it's corresponding HTML file by automatically appending the filenames to the base URL of the repository.
 
 Installation
 ~~~~~~~~~~~~
@@ -32,7 +32,7 @@ Configuration
 The plugin can be configured by adding custom settings to your deployment's `lms.yml`.
 
 #. Configure the plugin variables by setting the the following 2 values
-    * `EDIT_LINKS_PLUGIN_GIT_REPOS` - a map of course ids and the correspondint Git urls. This urls used here would be considered as the base of the `course` folder of the course content. For eg., 
+    * `EDIT_LINKS_PLUGIN_GIT_REPOS` - a map of course ids and the correspondint Git urls. This urls used here would be considered as the base of the `course` folder of the course content. For eg.,
 
     .. code-block::
 
@@ -40,7 +40,7 @@ The plugin can be configured by adding custom settings to your deployment's `lms
             "course-v1:my+awesome+course": "https://gitlab.com/awesome-course/-/tree/master/course/",
             "course-v1:foss+course+2022": "https://gitlab.com/foss-course/-/tree/master/2022/course/",
         }
-    
+
     * `EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL` - an OPTIONAL configuration which lets you specify the word to use in the links "Edit on <label>". Defaults to `Git`.
 
     .. code-block::

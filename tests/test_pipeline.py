@@ -1,6 +1,8 @@
 """
 Tests for pipeline.py
 """
+from unittest.mock import Mock
+
 from django.test import TestCase, override_settings
 from openedx_filters.learning.filters import VerticalBlockChildRenderStarted
 
@@ -8,6 +10,10 @@ from openedx_filters.learning.filters import VerticalBlockChildRenderStarted
 class HtmlBlockWithMixins:
     """
     Mock of the mixed class of xmodule.html_module.HtmlBlock to test the filter pipeline.
+
+    This class is added here instead of directly using Mock or MagicMock because the pipeline
+    function uses type().__name__ to verify the class of the block. The Mock methods cannot
+    support such an verification.
 
     Arguments:
         course_id (str): id of the course
@@ -18,6 +24,7 @@ class HtmlBlockWithMixins:
         self.course_id = course_id
         self.url_name = url_name
         self.data = data
+        self._clear_dirty_fields = Mock()
 
 
 @override_settings(
