@@ -16,10 +16,10 @@ Unreleased
 
 *
 
-[0.1.0] - 2022-06-24
+[0.1.0] - 2022-07-25
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 _____
 
-* First release on PyPI.
+* Adds "Edit on Git" links to each section of the course units.

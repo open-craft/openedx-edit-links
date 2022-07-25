@@ -111,6 +111,11 @@ setup(
     packages=[
         'edit_links',
     ],
+    entry_points={
+        "lms.djangoapp": [
+            "edit_links = edit_links.apps:EditLinksConfig",
+        ]
+    },
     include_package_data=True,
     install_requires=load_requirements('requirements/base.in'),
     python_requires=">=3.8",
