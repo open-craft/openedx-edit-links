@@ -25,6 +25,7 @@ class AddEditLink(PipelineStep):
                     "edit_links.pipeline.AddEditLink"
                 ]
             }
+        }
 
     """
 
