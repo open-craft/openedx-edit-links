@@ -42,16 +42,15 @@ class AddEditLink(PipelineStep):
 
             def wrapper(fn):
                 def wrapped():
-                    return f"""
-<div class="edit-link-wrapper">
-    <div class="edit-link">
-        <p style="text-align: right;"><a href="{link}" target="_blank"><i class="fa fa-pencil mr-1"></i> {label}</a></p>
-    </div>
-    <div class="edit-link-original-content">
-    {fn()}
-    </div>
-</div>
-"""
+                    return (
+                        '<div class="edit-link-wrapper">'
+                        '<div class="edit-link">'
+                        f'<p style="text-align: right;"><a href="{link}" target="_blank">'
+                        f'<i class="fa fa-pencil mr-1"></i> {label}</a></p>'
+                        '</div>'
+                        f'<div class="edit-link-original-content">{fn()}</div>'
+                        '</div>'
+                    )
                 return wrapped
             block.get_html = wrapper(block.get_html)
 
