@@ -24,7 +24,9 @@ class HtmlBlockWithMixins:
         self.course_id = course_id
         self.url_name = url_name
         self.data = data
-        self._clear_dirty_fields = Mock()
+
+    def get_html(self):
+        return self.data
 
 
 @override_settings(
@@ -61,7 +63,7 @@ class TestAddEditLinkPipeline(TestCase):
         block, context = VerticalBlockChildRenderStarted.run_filter(
             block=self.block, context={}
         )
-        self.assertEqual(block.data, self.original_content)
+        self.assertEqual(block.get_html(), self.original_content)
         self.assertEqual(context, {})
 
     @override_settings(
@@ -78,8 +80,9 @@ class TestAddEditLinkPipeline(TestCase):
         block, context = VerticalBlockChildRenderStarted.run_filter(
             block=self.block, context={}
         )
+        html = block.get_html()
 
-        self.assertIn(self.original_content, block.data)
-        self.assertIn("https://github.com/user/repo/folder/html/chapter-01.html", block.data)
-        self.assertIn("Edit on Github", block.data)
+        self.assertIn(self.original_content, html)
+        self.assertIn("https://github.com/user/repo/folder/html/chapter-01.html", html)
+        self.assertIn("Edit on Github", html)
         self.assertEqual(context, {})

@@ -39,22 +39,19 @@ class AddEditLink(PipelineStep):
             label = _("Edit on %(site)s") % {"site": settings.EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL}
             link = urljoin(git_url, f"html/{block.url_name}.html")
 
-            wrapped = f"""
+            def wrapper(fn):
+                def wrapped():
+                    return f"""
 <div class="edit-link-wrapper">
     <div class="edit-link">
         <p style="text-align: right;"><a href="{link}" target="_blank"><i class="fa fa-pencil mr-1"></i> {label}</a></p>
     </div>
     <div class="edit-link-original-content">
-    {block.data}
+    {fn()}
     </div>
 </div>
 """
-            block.data = wrapped
-            # Let's not mark this change as dirty as that would save the edit link permanently
-            # This needed because the XBlock render() function has the sideeffect of saving all
-            # the dirty fields.
-            #
-            # https://github.com/openedx/XBlock/blob/d6932fa6203ecf5938b18a880f7f546cb37f5d63/xblock/runtime.py#L849
-            block._clear_dirty_fields()  # pylint: disable=protected-access
+                return wrapped
+            block.get_html = wrapper(block.get_html)
 
         return {"block": block, "context": context}
