@@ -52,7 +52,7 @@ The plugin can be configured by adding custom settings to your deployment's `lms
     .. code-block::
 
         OPEN_EDX_FILTERS_CONFIG = {
-            "org.openedx.learning.verticalblockchild.render.started.v1": {
+            "org.openedx.learning.vertical_block_child.render.started.v1": {
                 "fail_silently": False,
                 "pipeline": [
                     "edit_links.pipeline.AddEditLink"

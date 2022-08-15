@@ -19,7 +19,7 @@ class AddEditLink(PipelineStep):
     .. code-block::
 
         "OPEN_EDX_FILTERS_CONFIG": {
-            "org.openedx.learning.verticalblockchild.render.started.v1": {
+            "org.openedx.learning.vertical_block_child.render.started.v1": {
                 "fail_silently": false,
                 "pipeline": [
                     "edit_links.pipeline.AddEditLink"
