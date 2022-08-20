@@ -60,6 +60,7 @@ The plugin can be configured by adding custom settings to your deployment's `lms
             }
         }
 
+**Note:** The base URL in the configuration should point the OLX course directory in your Git repo. The plugin adds "/html/<filename.html>" to take the user to the relevant file.
 
 Development Workflow
 --------------------
