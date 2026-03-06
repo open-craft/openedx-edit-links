@@ -1,88 +1,111 @@
 openedx-edit-links
 =============================
 
-|pypi-badge| |ci-badge| |codecov-badge| |doc-badge| |pyversions-badge|
-|license-badge|
+An Open edX backend plugin that provides a way to embed links to the course content stored in Git repositories as HTML files in the `Open Learning XML <https://docs.openedx.org/en/latest/educators/olx/what-is-olx.html>`_ format.
 
-Edit Links is an Open edX plugin application that provides a way to embed links to the course content stored in Git repositories as HTML files in the `Open Learning XML <https://edx.readthedocs.io/projects/edx-open-learning-xml/en/latest/front_matter/read_me.html>`_ format.
-
-Overview
---------
-
-The plugin implements an `openedx-filters <https://github.com/openedx/openedx-filters/>`_ pipeline that hooks into the `VerticalBlockChildRenderStarted` event on the `VerticalBlock` XBlock on platform.
-The pipeline modifies the HTML content of `HTMLBlock` blocks and appends necessary html to add an "Edit on Git" link on top of each child block of the `VerticalBlock`.
-
-Documentation
--------------
+The plugin implements an `openedx-filters <https://github.com/openedx/openedx-filters/>`_ pipeline that hooks into the `VerticalBlockChildRenderStarted <https://github.com/openedx/openedx-filters/blob/da2326a3adbb6fce898a348e7a6ca66d76114bb4/openedx_filters/learning/filters.py#L846>`_ event on the ``VerticalBlock`` XBlock.
+The pipeline modifies the HTML content of ``HTMLBlock`` to add necessary HTML that renders an **Edit on Git** link on top of each child of the ``VerticalBlock``.
 
 Pre-requisites
-~~~~~~~~~~~~~~
-In order for this plugin to be used effectively the course content should be stored in a public repostiory in the `Open Learning XML <https://edx.readthedocs.io/projects/edx-open-learning-xml/en/latest/front_matter/read_me.html>`_ format. This allows the plugin to link each section of the course content to it's corresponding HTML file by automatically appending the filenames to the base URL of the repository.
+--------------
+
+In order for this plugin to be used effectively the course content should be stored in a public repostiory in the `Open Learning XML <https://docs.openedx.org/en/latest/educators/olx/what-is-olx.html>`_ format. This allows the plugin to link each section of the course content to it's corresponding HTML file by automatically appending the filenames to the base URL of the repository.
 
 Installation
-~~~~~~~~~~~~
+------------
 
-* Install the plugin by adding `git+https://github.com/open-craft/openedx-edit-links.git` to your `EDXAPP_EXTRA_REQUIREMENTS` of your deployment.
-* Make sure you have the latest version of `openedx-filters` installed as well.
+* Install the plugin by adding ``git+https://github.com/open-craft/openedx-edit-links.git`` to your ``EDXAPP_EXTRA_REQUIREMENTS`` of your deployment. On Tutor, this can be accomplished by
+
+.. code-block:: sh
+
+    tutor config save --append OPENEDX_EXTRA_PIP_REQUIREMENTS=git+https://github.com/open-craft/openedx-edit-links.git
 
 
 Configuration
-~~~~~~~~~~~~~
-
-The plugin can be configured by adding custom settings to your deployment's `lms.yml`.
+-------------
 
 #. Configure the plugin variables by setting the the following 2 values
-    * `EDIT_LINKS_PLUGIN_GIT_REPOS` - a map of course ids and the correspondint Git urls. This urls used here would be considered as the base of the `course` folder of the course content. For eg.,
 
-    .. code-block::
+   * ``EDIT_LINKS_PLUGIN_GIT_REPOS`` - a map of course IDs and the correspondint Git URLs. This URLs used here would be considered as the base of the ``course`` folder of the course content. For eg.,
 
-        EDIT_LINKS_PLUGIN_GIT_REPOS = {
-            "course-v1:my+awesome+course": "https://gitlab.com/awesome-course/-/tree/master/course/",
-            "course-v1:foss+course+2022": "https://gitlab.com/foss-course/-/tree/master/2022/course/",
+      .. code-block:: python
+
+          EDIT_LINKS_PLUGIN_GIT_REPOS = {
+              "course-v1:OpenedX+DemoX+DemoCourse": "https://github.com/openedx/openedx-demo-course/edit/master/demo-course/course/",
+          }
+
+
+   * ``EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL`` - an OPTIONAL configuration which lets you specify the word to use in the links ``Edit on <label>``. Defaults to **Git**.
+
+      .. code-block:: python
+
+          EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL = "Gitlab"
+
+
+#. Configure ``openedx-filters`` to run the plugin's pipeline
+
+   .. code-block:: python
+
+       OPEN_EDX_FILTERS_CONFIG = {
+           "org.openedx.learning.vertical_block_child.render.started.v1": {
+               "fail_silently": False,
+               "pipeline": [
+                   "edit_links.pipeline.AddEditLink"
+               ]
+           }
+       }
+
+**Note:** The base URL in the configuration should point the OLX course directory in your Git repo. The plugin adds ``/html/<filename.html>`` to take the user to the relevant file.
+
+
+As a Tutor Plugin
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    from tutor import hooks
+
+    hooks.Filters.ENV_PATCHES.add_item(
+        (
+            "openedx-common-settings",
+            """
+    EDIT_LINKS_PLUGIN_GIT_REPOS = {
+        "course-v1:OpenedX+DemoX+DemoCourse": "https://github.com/openedx/openedx-demo-course/edit/master/demo-course/course/",
+    }
+
+    EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL = "Github"
+
+    OPEN_EDX_FILTERS_CONFIG = {
+        "org.openedx.learning.vertical_block_child.render.started.v1": {
+            "fail_silently": False,
+            "pipeline": [
+                "edit_links.pipeline.AddEditLink"
+            ]
         }
+    }
+    """),
+    )
 
-    * `EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL` - an OPTIONAL configuration which lets you specify the word to use in the links "Edit on <label>". Defaults to `Git`.
 
-    .. code-block::
-
-        EDIT_LINKS_PLUGIN_GIT_EDIT_LABEL = "Gitlab"
-
-#. Configure `openedx-filters` to run the plugin's pipeline
-
-    .. code-block::
-
-        OPEN_EDX_FILTERS_CONFIG = {
-            "org.openedx.learning.vertical_block_child.render.started.v1": {
-                "fail_silently": False,
-                "pipeline": [
-                    "edit_links.pipeline.AddEditLink"
-                ]
-            }
-        }
-
-**Note:** The base URL in the configuration should point the OLX course directory in your Git repo. The plugin adds "/html/<filename.html>" to take the user to the relevant file.
 
 Development Workflow
 --------------------
 
-One Time Setup
-~~~~~~~~~~~~~~
-.. code-block::
+The plugin can be developed using a Tutor dev environment.
 
-  # Clone the repository
-  git clone git@github.com:open-craft/openedx-edit-links.git
-  cd openedx-edit-links
+1. Clone the repo.
+2. Add the repo as a Tutor mount. ``tutor mounts add /path/to/openedx-edit-links``.
+3. Rebuild the ``openedx-dev`` image. ``tutor images build openedx-dev``.
+4. Create a Tutor plugin based the example above and enable it.
+5. Restart the services.
 
-  # Set up a virtualenv using virtualenvwrapper with the same name as the repo and activate it
-  mkvirtualenv -p python3.8 openedx-edit-links
+Now the edit links should to become available in the course. Any changes to the plugin should restart the LMS service.
 
 
 Every time you develop something in this repo
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.. code-block::
 
-  # Activate the virtualenv
-  workon openedx-edit-links
+.. code-block:: sh
 
   # Grab the latest code
   git checkout main
@@ -112,19 +135,6 @@ Every time you develop something in this repo
 
   # Open a PR and ask for review.
 
-Developing with the Devstack
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-#. Clone the repository to your `/edx/src/` folder
-#. Install the plugin inside your lms container
-
-    .. code-block::
-
-        make lms-shell
-        pip install -e /edx/src/openedx-edit-links
-
-#. Add the necessary configuration (as mentioned in the "Configuration" section above) to your `edx-platform/lms/envs/private.py`
-#. Restart the lms container to ensure everything is loaded `make lms-restart`
 
 License
 -------
@@ -138,8 +148,8 @@ How To Contribute
 -----------------
 
 Contributions are very welcome.
-Please read `How To Contribute <https://github.com/edx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details.
-Even though they were written with ``edx-platform`` in mind, the guidelines
+Please read `How To Contribute <https://docs.openedx.org/en/latest/developers/quickstarts/so_you_want_to_contribute.html>`_ for details.
+Even though they were written with ``openedx-platform`` in mind, the guidelines
 should be followed for all Open edX projects.
 
 The pull request description template should be automatically applied if you are creating a pull request from GitHub. Otherwise you
@@ -158,34 +168,9 @@ Getting Help
 
 If you're having trouble, we have discussion forums at https://discuss.openedx.org where you can connect with others in the community.
 
-Our real-time conversations are on Slack. You can request a `Slack invitation`_, then join our `community Slack workspace`_.
+Our real-time conversations are on Slack. You can join our `community Slack workspace`_.
 
 For more information about these options, see the `Getting Help`_ page.
 
-.. _Slack invitation: https://openedx-slack-invite.herokuapp.com/
-.. _community Slack workspace: https://openedx.slack.com/
+.. _community Slack workspace: https://openedx.org/slack
 .. _Getting Help: https://openedx.org/getting-help
-
-.. |pypi-badge| image:: https://img.shields.io/pypi/v/openedx-edit-links.svg
-    :target: https://pypi.python.org/pypi/openedx-edit-links/
-    :alt: PyPI
-
-.. |ci-badge| image:: https://github.com/edx/openedx-edit-links/workflows/Python%20CI/badge.svg?branch=main
-    :target: https://github.com/edx/openedx-edit-links/actions
-    :alt: CI
-
-.. |codecov-badge| image:: https://codecov.io/github/edx/openedx-edit-links/coverage.svg?branch=main
-    :target: https://codecov.io/github/edx/openedx-edit-links?branch=main
-    :alt: Codecov
-
-.. |doc-badge| image:: https://readthedocs.org/projects/openedx-edit-links/badge/?version=latest
-    :target: https://openedx-edit-links.readthedocs.io/en/latest/
-    :alt: Documentation
-
-.. |pyversions-badge| image:: https://img.shields.io/pypi/pyversions/openedx-edit-links.svg
-    :target: https://pypi.python.org/pypi/openedx-edit-links/
-    :alt: Supported Python versions
-
-.. |license-badge| image:: https://img.shields.io/github/license/edx/openedx-edit-links.svg
-    :target: https://github.com/edx/openedx-edit-links/blob/main/LICENSE.txt
-    :alt: License
