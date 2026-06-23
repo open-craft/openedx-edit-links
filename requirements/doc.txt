@@ -18,7 +18,7 @@ babel==2.10.3
     # via sphinx
 bleach==5.0.1
     # via readme-renderer
-build==0.8.0
+build==1.2.2
     # via -r requirements/doc.in
 certifi==2022.6.15
     # via requests
@@ -88,7 +88,7 @@ markupsafe==2.1.1
     #   jinja2
 openedx-filters==0.8.0
     # via -r requirements/test.txt
-packaging==21.3
+packaging==24.2
     # via
     #   -r requirements/test.txt
     #   build
@@ -100,7 +100,7 @@ pbr==5.9.0
     #   stevedore
 pep517==0.12.0
     # via build
-pkginfo==1.8.3
+pkginfo==1.11.2
     # via twine
 pluggy==1.0.0
     # via
@@ -203,7 +203,7 @@ tomli==2.0.1
     #   coverage
     #   pep517
     #   pytest
-twine==5.1.1
+twine==6.1.0
     # via -r requirements/doc.in
 typing-extensions==4.3.0
     # via rich
