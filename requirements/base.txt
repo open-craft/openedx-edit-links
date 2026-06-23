@@ -14,7 +14,7 @@ django==3.2.14
     #   openedx-filters
 django-model-utils==4.2.0
     # via -r requirements/base.in
-openedx-filters @ git+https://github.com/open-craft/openedx-filters.git@tecoholic/add-vertical-block-child-render-started-filter
+openedx-filters==0.8.0
     # via -r requirements/base.in
 pytz==2022.1
     # via django

@@ -86,7 +86,7 @@ markupsafe==2.1.1
     # via
     #   -r requirements/test.txt
     #   jinja2
-openedx-filters @ git+https://github.com/open-craft/openedx-filters.git@tecoholic/add-vertical-block-child-render-started-filter
+openedx-filters==0.8.0
     # via -r requirements/test.txt
 packaging==21.3
     # via
