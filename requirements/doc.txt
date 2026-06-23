@@ -203,7 +203,7 @@ tomli==2.0.1
     #   coverage
     #   pep517
     #   pytest
-twine==4.0.1
+twine==5.1.1
     # via -r requirements/doc.in
 typing-extensions==4.3.0
     # via rich
