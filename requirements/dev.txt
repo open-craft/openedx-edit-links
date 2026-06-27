@@ -149,7 +149,7 @@ mccabe==0.7.0
     # via
     #   -r requirements/quality.txt
     #   pylint
-openedx-filters @ git+https://github.com/open-craft/openedx-filters.git@tecoholic/add-vertical-block-child-render-started-filter
+openedx-filters==0.8.0
     # via -r requirements/quality.txt
 packaging==21.3
     # via

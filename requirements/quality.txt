@@ -56,7 +56,7 @@ django-model-utils==4.2.0
     # via -r requirements/test.txt
 docutils==0.19
     # via readme-renderer
-edx-lint==5.2.4
+edx-lint==6.1.0
     # via -r requirements/quality.in
 idna==3.3
     # via requests
@@ -90,7 +90,7 @@ markupsafe==2.1.1
     #   jinja2
 mccabe==0.7.0
     # via pylint
-openedx-filters @ git+https://github.com/open-craft/openedx-filters.git@tecoholic/add-vertical-block-child-render-started-filter
+openedx-filters==0.8.0
     # via -r requirements/test.txt
 packaging==21.3
     # via
