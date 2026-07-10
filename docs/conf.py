@@ -14,6 +14,7 @@ serve to show the default.
 import os
 import re
 import sys
+import tomllib
 from subprocess import check_call
 
 import edx_theme
@@ -25,17 +26,16 @@ def get_version(*file_paths):
     Extract the version string from the file at the given relative path fragments.
     """
     filename = os.path.join(os.path.dirname(__file__), *file_paths)
-    version_file = open(filename, encoding="utf8").read()
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError('Unable to find version string.')
+    with open(filename, encoding="utf8") as version_file_handle:
+        version_file = version_file_handle.read()
+    package_data = tomllib.loads(version_file)
+    return package_data["project"]["version"]
 
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(REPO_ROOT)
 
-VERSION = get_version('../edit_links', '__init__.py')
+VERSION = get_version('../', 'pyproject.toml')
 
 # Configure Django for autodoc usage
 os.environ['DJANGO_SETTINGS_MODULE'] = 'test_settings'
