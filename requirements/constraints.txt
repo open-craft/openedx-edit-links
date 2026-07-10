@@ -11,7 +11,6 @@
 # Common constraints for edx repos
 -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
 
-openedx-filters==0.8.0    # Compatible version according to git history. It is necessary to test if it is compatible with older versions.
 twine==6.1.0              # Compatible version for the docs linter to work on the CI.
 build==1.2.2              # Compatible version for the docs linter to work on the CI.
 edx-lint==6.1.0           # Compatible version for the quality linter to work on the CI.
