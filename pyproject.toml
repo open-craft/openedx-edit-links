@@ -1,0 +1,87 @@
+[project]
+name = "openedx-edit-links"
+version = "0.2.0"
+authors = [
+    {name = "OpenCraft", email = "contact@opencraft.com"},
+]
+description = "Add Edit links to course content that allows students to contribute changes to FOSS courses"
+readme = "README.rst"
+requires-python = ">=3.12"
+license = "AGPL-3.0-only"
+license-files = ["LICENSE.txt"]
+classifiers=[
+    'Development Status :: 3 - Alpha',
+    'Framework :: Django',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+    'Natural Language :: English',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.12',
+]
+dependencies = [
+    "Django",
+    "django-model-utils",
+    "openedx-filters",
+]
+[dependency-groups]
+dev_constraints = [
+    # Compatible version for these to work in CI.
+    "twine==6.1.0",
+    "build==1.2.2",
+    "edx-lint==6.1.0",
+]
+dev = [
+    "diff-cover",
+    "edx-i18n-tools",
+    "tox",
+    "tox-battery",
+    {include-group = "ci"},
+    {include-group = "quality"},
+    {include-group = "dev_constraints"},
+]
+test = [
+    "pytest-cov",
+    "pytest-django",
+    "code-annotations",
+]
+ci = [
+    "codecov",
+    "tox",
+    {include-group = "dev_constraints"},
+]
+quality = [
+    "edx-lint",
+    "isort",
+    "pycodestyle",
+    "pydocstyle",
+    "twine",
+    {include-group = "dev_constraints"},
+]
+doc = [
+    "build",
+    "doc8",
+    "edx_sphinx_theme",
+    "pydocstyle",
+    "pycodestyle",
+    "roman",
+    "Sphinx",
+    "twine",
+    {include-group = "dev_constraints"},
+]
+
+[project.urls]
+Homepage = "https://github.com/opencraft/openedx-edit-links"
+
+[build-system]
+requires = ["uv_build>=0.11.28,<0.12"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "edit_links"
+module-root = ""
+
+[tool.isort]
+include_trailing_comma = true
+indent = '    '
+line_length = 120
+multi_line_output = 3
