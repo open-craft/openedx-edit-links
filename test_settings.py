@@ -26,14 +26,14 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.sessions',
     'edit_links',
-)
+]
 
 LOCALE_PATHS = [
     root('edit_links', 'conf', 'locale'),
@@ -43,11 +43,11 @@ ROOT_URLCONF = 'edit_links.urls'
 
 SECRET_KEY = 'insecure-secret-key'
 
-MIDDLEWARE = (
+MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-)
+]
 
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
